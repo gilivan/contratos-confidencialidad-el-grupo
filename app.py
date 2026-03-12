@@ -26,11 +26,11 @@ EMPRESAS_CONTRATANTE = {
     }
 }
 
-# Datos de contacto fijos del Contratante
+# Datos de contacto fijos del Representante de El Grupo (aplica para ambas empresas)
 CONTACTO_CONTRATANTE = {
     "nombre": "SANTIAGO VÉLEZ GRACIÁN",
     "telefono": "3154719586",
-    "direccion": "Carrera 43b # 16 - 95 Manila Of. 614, Medellín, Colombia",
+    "direccion": "Carrera 43b # 16 - 95 Manila Of. 614. Medellín – Colombia",
     "correo": "info@elgrupo.com.co"
 }
 
@@ -128,8 +128,15 @@ async def generar_contrato(
         fecha_formateada = fecha_firma
 
     replacements = {
+        # Datos del Contratante (empresa de El Grupo seleccionada)
         "{NOMBRE EMPRESA CONTRATANTE}": empresa["nombre"],
         "{NIT EMPRESA CONTRATANTE}": empresa["nit"],
+        # Datos de contacto fijos del representante de El Grupo
+        "{NOMBRE REP EL GRUPO}": CONTACTO_CONTRATANTE["nombre"],
+        "{TELEFONO REP EL GRUPO}": CONTACTO_CONTRATANTE["telefono"],
+        "{DIRECCION REP EL GRUPO}": CONTACTO_CONTRATANTE["direccion"],
+        "{EMAIL REP EL GRUPO}": CONTACTO_CONTRATANTE["correo"],
+        # Datos del Contratista (ingresados por el usuario)
         "{NOMBRE EMPRESA CONTRATISTA}": nombre_empresa_contratista.upper(),
         "{NIT EMPRESA CONTRATISTA}": nit_empresa_contratista,
         "{NOMBRE REPRESENTANTE LEGAL CONTRATISTA}": nombre_representante.upper(),
