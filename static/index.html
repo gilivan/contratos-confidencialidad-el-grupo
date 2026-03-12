@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generador de Acuerdos de Confidencialidad | El Grupo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #000141;
+      --accent: #e8512a;
+      --light-bg: #f8f7f4;
+      --border: #ddd8ce;
+    }
+
+    body {
+      background-color: var(--light-bg);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #333;
+    }
+
+    .header {
+      background-color: var(--primary);
+      color: #fff;
+      padding: 24px 0 20px;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 1.45rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      margin: 0;
+    }
+
+    .header p {
+      color: #8e9ab8;
+      margin-bottom: 0;
+      font-size: 0.88rem;
+      margin-top: 4px;
+    }
+
+    .header-logo {
+      height: 44px;
+      width: auto;
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 42px;
+      background: rgba(255,255,255,0.18);
+      margin: 0 20px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .card-header-section {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 9px 9px 0 0;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-header-section .badge-num {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .card-header-section h5 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .form-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+
+    .form-control, .form-select {
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 0.95rem;
+      padding: 9px 14px;
+      background-color: #fff;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(200, 169, 110, 0.15);
+    }
+
+    .empresa-card {
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fff;
+    }
+
+    .empresa-card:hover {
+      border-color: var(--accent);
+      background: #fffdf7;
+    }
+
+    .empresa-card.selected {
+      border-color: var(--accent);
+      background: #fffdf7;
+      box-shadow: 0 0 0 3px rgba(200, 169, 110, 0.2);
+    }
+
+    .empresa-card input[type="radio"] {
+      display: none;
+    }
+
+    .empresa-card .empresa-nombre {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--primary);
+    }
+
+    .empresa-card .empresa-nit {
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    .empresa-card .check-icon {
+      color: var(--accent);
+      font-size: 1.3rem;
+      display: none;
+    }
+
+    .empresa-card.selected .check-icon {
+      display: block;
+    }
+
+    .btn-generar {
+      background-color: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 14px 40px;
+      border-radius: 8px;
+      border: none;
+      letter-spacing: 0.04em;
+      transition: all 0.2s;
+    }
+
+    .btn-generar:hover {
+      background-color: #c93e18;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(232, 81, 42, 0.38);
+    }
+
+    .btn-generar:disabled {
+      opacity: 0.6;
+      transform: none;
+    }
+
+    .divider-label {
+      position: relative;
+      text-align: center;
+      margin: 8px 0 16px;
+    }
+
+    .divider-label::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider-label span {
+      background: #fff;
+      padding: 0 12px;
+      position: relative;
+      font-size: 0.75rem;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    #loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 26, 46, 0.7);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    #loading-overlay.show {
+      display: flex;
+    }
+
+    .spinner-border {
+      width: 50px;
+      height: 50px;
+      border-width: 4px;
+      color: var(--accent);
+    }
+
+    .loading-text {
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .info-box {
+      background: #eef4fb;
+      border-left: 4px solid #3b82f6;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: #1e40af;
+      margin-bottom: 20px;
+    }
+
+    footer {
+      margin-top: 60px;
+      padding: 24px 0;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: #aaa;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="container">
+    <div class="d-flex align-items-center">
+
+      <!-- Logo El Grupo (SVG inline) -->
+      <svg class="header-logo" viewBox="0 0 180 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="El Grupo">
+        <defs>
+          <linearGradient id="ringGrad" x1="38" y1="4" x2="8" y2="38" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#E8512A"/>
+            <stop offset="100%" stop-color="#7B2882"/>
+          </linearGradient>
+        </defs>
+        <!-- Ring / partial circle — opens at upper-right (~40°) -->
+        <path d="
+          M 38 6
+          A 18 18 0 1 0 42 12
+        " stroke="url(#ringGrad)" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+        <!-- "el grupo" wordmark in white -->
+        <text x="52" y="30" font-family="'Segoe UI', Arial, sans-serif" font-size="19" font-weight="600" letter-spacing="0.5" fill="#ffffff">el grupo</text>
+        <!-- Orange dot -->
+        <circle cx="172" cy="37" r="3.5" fill="#E8512A"/>
+      </svg>
+
+      <div class="header-divider"></div>
+
+      <div>
+        <h1>Generador de Acuerdos de Confidencialidad</h1>
+        <p>Complete el formulario para generar el documento Word listo para firmar</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div id="loading-overlay">
+  <div class="spinner-border" role="status"></div>
+  <div class="loading-text">Generando contrato...</div>
+</div>
+
+<div class="container pb-5" style="max-width: 820px;">
+
+  <form id="contrato-form" action="/generar-contrato" method="POST" onsubmit="handleSubmit(event)">
+
+    <!-- SECCIÓN 1: Empresa Contratante -->
+    <div class="card mb-4">
+      <div class="card-header-section">
+        <div class="badge-num">1</div>
+        <h5>Empresa Contratante</h5>
+      </div>
+      <div class="card-body p-4">
+        <p class="text-muted mb-3" style="font-size:0.9rem;">
+          Seleccione la razón social de El Grupo con la que se firmará el acuerdo:
+        </p>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="empresa-card selected" id="card-perez" onclick="selectEmpresa('perez_villa')">
+              <input type="radio" name="empresa_contratante_ui" value="perez_villa" checked />
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <div class="empresa-nombre">PÉREZ Y VILLA S.A.S</div>
+                  <div class="empresa-nit">NIT 890.926.395-8</div>
+                </div>
+                <div class="check-icon">✓</div>
+              </div>
+            </label>
+          </div>
+          <div class="col-md-6">
+            <label class="empresa-card" id="card-fiera" onclick="selectEmpresa('fiera')">
+              <input type="radio" name="empresa_contratante_ui" value="fiera" />
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <div class="empresa-nombre">FIERA S.A.S.</div>
+                  <div class="empresa-nit">NIT 900.072.392-5</div>
+                </div>
+                <div class="check-icon">✓</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Hidden input real para el form -->
+        <input type="hidden" name="empresa_contratante" id="empresa_contratante_input" value="perez_villa" />
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: Datos del Contratista -->
+    <div class="card mb-4">
+      <div class="card-header-section">
+        <div class="badge-num">2</div>
+        <h5>Datos del Contratista — Empresa</h5>
+      </div>
+      <div class="card-body p-4">
+
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label">Nombre o Razón Social *</label>
+            <input type="text" class="form-control" name="nombre_empresa_contratista"
+              placeholder="Ej: TECNOLOGÍA AVANZADA S.A.S" required />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">NIT *</label>
+            <input type="text" class="form-control" name="nit_empresa_contratista"
+              placeholder="Ej: 900.123.456-7" required />
+          </div>
+          <div class="col-12">
+            <label class="form-label">Dirección de la empresa *</label>
+            <input type="text" class="form-control" name="direccion_empresa_contratista"
+              placeholder="Ej: Calle 50 # 20-30, Medellín, Colombia" required />
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3: Representante Legal -->
+    <div class="card mb-4">
+      <div class="card-header-section">
+        <div class="badge-num">3</div>
+        <h5>Datos del Contratista — Representante Legal</h5>
+      </div>
+      <div class="card-body p-4">
+
+        <div class="row g-3">
+          <div class="col-md-7">
+            <label class="form-label">Nombre completo del Representante Legal *</label>
+            <input type="text" class="form-control" name="nombre_representante"
+              placeholder="Ej: JUAN CARLOS PÉREZ LÓPEZ" required />
+          </div>
+          <div class="col-md-5">
+            <label class="form-label">Cédula de Ciudadanía *</label>
+            <input type="text" class="form-control" name="cedula_representante"
+              placeholder="Ej: 71.234.567" required />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Teléfono de contacto *</label>
+            <input type="tel" class="form-control" name="telefono_representante"
+              placeholder="Ej: 3001234567" required />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Correo electrónico *</label>
+            <input type="email" class="form-control" name="correo_representante"
+              placeholder="Ej: jperez@empresa.com" required />
+          </div>
+          <div class="col-12">
+            <label class="form-label">Dirección del Representante Legal *</label>
+            <input type="text" class="form-control" name="direccion_representante"
+              placeholder="Ej: Carrera 45 # 15-22 Apto 301, Medellín" required />
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4: Fecha -->
+    <div class="card mb-5">
+      <div class="card-header-section">
+        <div class="badge-num">4</div>
+        <h5>Fecha de Firma</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="row">
+          <div class="col-md-4">
+            <label class="form-label">Fecha *</label>
+            <input type="date" class="form-control" name="fecha_firma" id="fecha_firma" required />
+          </div>
+          <div class="col-md-8 d-flex align-items-end">
+            <div class="info-box w-100">
+              La fecha se escribirá en letras en el documento, por ejemplo: <strong>12 de marzo de 2026</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón -->
+    <div class="text-center">
+      <button type="submit" class="btn btn-generar" id="btn-submit">
+        ⬇&nbsp; Generar y Descargar Contrato
+      </button>
+      <p class="text-muted mt-3" style="font-size:0.82rem;">
+        Se generará un archivo <strong>.docx</strong> con todos los datos diligenciados, listo para revisar y firmar.
+      </p>
+    </div>
+
+  </form>
+</div>
+
+<footer>
+  <div class="container">
+    El Grupo &nbsp;·&nbsp; Generador de Acuerdos de Confidencialidad &nbsp;·&nbsp; Uso interno
+  </div>
+</footer>
+
+<script>
+  // Set default date to today
+  document.getElementById('fecha_firma').valueAsDate = new Date();
+
+  function selectEmpresa(value) {
+    document.getElementById('empresa_contratante_input').value = value;
+
+    document.querySelectorAll('.empresa-card').forEach(card => card.classList.remove('selected'));
+
+    if (value === 'perez_villa') {
+      document.getElementById('card-perez').classList.add('selected');
+    } else {
+      document.getElementById('card-fiera').classList.add('selected');
+    }
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    const form = document.getElementById('contrato-form');
+    const btn = document.getElementById('btn-submit');
+    const overlay = document.getElementById('loading-overlay');
+
+    // Validate
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    // Show loading
+    overlay.classList.add('show');
+    btn.disabled = true;
+    btn.textContent = 'Generando...';
+
+    // Create hidden form and submit to get file download
+    const formData = new FormData(form);
+
+    fetch('/generar-contrato', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.text().then(text => { throw new Error(text || 'Error al generar el contrato'); });
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      // Trigger download
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+
+      // Get filename from empresa
+      const empresa = document.getElementById('empresa_contratante_input').value;
+      const contratista = formData.get('nombre_empresa_contratista').replace(/\s+/g, '_');
+      a.download = `Acuerdo_Confidencialidad_${contratista}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      overlay.classList.remove('show');
+      btn.disabled = false;
+      btn.innerHTML = '⬇&nbsp; Generar y Descargar Contrato';
+    })
+    .catch(error => {
+      overlay.classList.remove('show');
+      btn.disabled = false;
+      btn.innerHTML = '⬇&nbsp; Generar y Descargar Contrato';
+      alert('Error al generar el contrato: ' + error.message);
+    });
+  }
+</script>
+
+</body>
+</html>
